@@ -626,7 +626,7 @@
 
     <!-- MODAL 1: PAYMENT PROCESSOR -->
     <div id="payment-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4">
+      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3">
           <h3 class="text-lg font-bold text-gray-800">Proses Pembayaran</h3>
           <button onclick="app.closeModal('payment-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -709,7 +709,7 @@
 
     <!-- MODAL 3: PRODUCT EDITOR -->
     <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4">
+      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <h3 id="product-modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Tambah Produk</h3>
         <form onsubmit="app.saveProductForm(event)" class="space-y-3">
           <input type="hidden" id="prod-id">
