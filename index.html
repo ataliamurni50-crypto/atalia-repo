@@ -13,21 +13,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- SheetJS for Excel Export (Laporan Laba Rugi) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Fonts: Cormorant Garamond for an elegant boutique feel on headings, Inter for clean everyday legibility -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Cormorant Garamond"', 'serif']
+          },
           colors: {
             brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
+              50: '#FBF3E7',
+              100: '#F5E4C6',
+              500: '#B7862E',
+              600: '#A9762A',
+              700: '#8C5F22',
+              800: '#6F4B1C',
+              900: '#4A3212',
+            },
+            plum: {
+              600: '#5B2333',
+              700: '#4A1C29',
             }
           }
         }
@@ -87,12 +98,12 @@
     }
   </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 antialiased h-screen overflow-hidden">
+<body class="bg-[#FAF6EF] font-sans text-stone-800 antialiased h-screen overflow-hidden">
 
   <div id="app" class="flex h-full w-full flex-col">
 
     <!-- SETUP CONTAINER (GOOGLE SHEETS CONNECTION) -->
-    <div id="setup-container" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
+    <div id="setup-container" class="fixed inset-0 z-[60] hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-slate-900 bg-opacity-95 p-4">
       <div class="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
         <div class="text-center mb-6">
           <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600 mb-3">
@@ -118,7 +129,7 @@
     </div>
 
     <!-- LOADING OVERLAY -->
-    <div id="loading-container" class="fixed inset-0 z-[55] hidden flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
+    <div id="loading-container" class="fixed inset-0 z-[55] hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-slate-900 bg-opacity-95 p-4">
       <div class="text-center text-white">
         <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3"></i>
         <p id="loading-text" class="text-sm font-medium">Mengambil data dari Google Sheets...</p>
@@ -126,13 +137,13 @@
     </div>
 
     <!-- AUTHENTICATION CONTAINER (LOGIN) -->
-    <div id="auth-container" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900 bg-opacity-95 p-4">
+    <div id="auth-container" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-slate-900 bg-opacity-95 p-4">
       <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
         <div class="text-center mb-6">
           <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-600 mb-3">
-            <i class="fa-solid fa-store text-3xl"></i>
+            <i class="fa-solid fa-spray-can-sparkles text-3xl"></i>
           </div>
-          <h2 id="login-store-name" class="text-2xl font-bold text-gray-900">TOKO SERBA ADA</h2>
+          <h2 id="login-store-name" class="font-display text-3xl font-bold text-plum-700">TOKO SERBA ADA</h2>
           <p class="text-sm text-gray-500">Silakan login untuk mengakses POS</p>
         </div>
         <form id="login-form" onsubmit="app.handleLogin(event)" class="space-y-4">
@@ -157,6 +168,9 @@
           <p>• Admin: <code class="bg-gray-200 px-1 rounded">admin</code> / <code class="bg-gray-200 px-1 rounded">123456</code></p>
           <p>• Kasir: <code class="bg-gray-200 px-1 rounded">kasir</code> / <code class="bg-gray-200 px-1 rounded">123456</code></p>
         </div>
+        <button type="button" onclick="app.backToConnectionSetup()" class="w-full mt-4 text-xs text-gray-400 hover:text-brand-600 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-arrow-left"></i> Ganti URL / API Key Google Sheets
+        </button>
       </div>
     </div>
 
@@ -164,14 +178,14 @@
     <div id="main-structure" class="hidden flex flex-col h-full w-full">
       
       <!-- SINGLE HEADER SYSTEM -->
-      <header class="flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm z-20">
+      <header class="flex h-16 w-full items-center justify-between border-b border-brand-100 bg-white px-4 shadow-sm z-20">
         <div class="flex items-center space-x-3">
           <button onclick="app.toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden">
             <i class="fa-solid fa-bars text-xl"></i>
           </button>
           <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-receipt text-brand-600 text-2xl"></i>
-            <span id="app-header-title" class="text-lg font-bold text-gray-900 tracking-tight">[NAMA TOKO]</span>
+            <i class="fa-solid fa-spray-can-sparkles text-brand-600 text-2xl"></i>
+            <span id="app-header-title" class="font-display text-2xl font-bold text-plum-700 tracking-tight">[NAMA TOKO]</span>
           </div>
         </div>
         
@@ -199,7 +213,7 @@
 
       <div class="flex flex-1 overflow-hidden relative">
         <!-- SINGLE SIDEBAR NAVIGATION SYSTEM -->
-        <aside id="main-sidebar" class="absolute lg:relative z-30 flex h-full w-64 flex-col border-r border-gray-200 bg-white transition-all duration-300 transform -translate-x-full lg:translate-x-0">
+        <aside id="main-sidebar" class="absolute lg:relative z-30 flex h-full w-64 flex-col border-r border-brand-100 bg-white transition-all duration-300 transform -translate-x-full lg:translate-x-0">
           <div class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
             <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3 mb-2">Utama</div>
             <a href="#" onclick="app.navigate('pos')" id="nav-pos" class="nav-btn flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600">
@@ -236,12 +250,12 @@
             </a>
           </div>
           <div class="border-t border-gray-100 p-3 text-center text-xs text-gray-400">
-            Kasir Pro v2.6 • POS Thermal Ready
+            Kasir Parfum • Powered by Google Sheets
           </div>
         </aside>
 
         <!-- MAIN VIEW ENGINE -->
-        <main class="flex-1 overflow-y-auto bg-gray-50 p-4 lg:p-6">
+        <main class="flex-1 overflow-y-auto bg-[#FAF6EF] p-4 lg:p-6">
           
           <!-- VIEW 1: POS / KASIR -->
           <section id="view-pos" class="view-panel flex flex-col lg:flex-row lg:h-full gap-6">
@@ -270,7 +284,7 @@
             </div>
 
             <!-- RIGHT COLUMN: CART & CHECKOUT -->
-            <div class="w-full lg:w-96 bg-white rounded-xl shadow-md flex flex-col lg:h-full border border-gray-100">
+            <div class="w-full lg:w-96 bg-white rounded-xl shadow-md flex flex-col lg:h-full border border-brand-100/60">
               <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
                 <h3 class="font-bold text-gray-800 flex items-center gap-2">
                   <i class="fa-solid fa-cart-shopping text-brand-600"></i> Keranjang Transaksi
@@ -322,39 +336,39 @@
 
           <!-- VIEW 2: DASHBOARD -->
           <section id="view-dashboard" class="view-panel hidden space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800">Dashboard Performa Toko</h2>
+            <h2 class="font-display text-3xl font-bold text-plum-700">Dashboard Performa Toko</h2>
             
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
+              <div class="bg-white p-4 rounded-xl border border-brand-100/60 shadow-sm flex items-center space-x-4">
                 <div class="p-3 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-sack-dollar text-xl"></i></div>
                 <div>
                   <p class="text-xs text-gray-500 font-medium">Penjualan Hari Ini</p>
                   <h4 id="dash-sales-today" class="text-lg font-bold text-gray-800">Rp 0</h4>
                 </div>
               </div>
-              <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
+              <div class="bg-white p-4 rounded-xl border border-brand-100/60 shadow-sm flex items-center space-x-4">
                 <div class="p-3 bg-green-100 text-green-600 rounded-lg"><i class="fa-solid fa-receipt text-xl"></i></div>
                 <div>
                   <p class="text-xs text-gray-500 font-medium">Jumlah Transaksi</p>
                   <h4 id="dash-trx-count" class="text-lg font-bold text-gray-800">0</h4>
                 </div>
               </div>
-              <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
+              <div class="bg-white p-4 rounded-xl border border-brand-100/60 shadow-sm flex items-center space-x-4">
                 <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg"><i class="fa-solid fa-chart-line text-xl"></i></div>
                 <div>
                   <p class="text-xs text-gray-500 font-medium">Keuntungan Hari Ini</p>
                   <h4 id="dash-profit-today" class="text-lg font-bold text-gray-800">Rp 0</h4>
                 </div>
               </div>
-              <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
+              <div class="bg-white p-4 rounded-xl border border-brand-100/60 shadow-sm flex items-center space-x-4">
                 <div class="p-3 bg-purple-100 text-purple-600 rounded-lg"><i class="fa-solid fa-box-open text-xl"></i></div>
                 <div>
                   <p class="text-xs text-gray-500 font-medium">Produk Terjual</p>
                   <h4 id="dash-items-sold" class="text-lg font-bold text-gray-800">0</h4>
                 </div>
               </div>
-              <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center space-x-4">
+              <div class="bg-white p-4 rounded-xl border border-brand-100/60 shadow-sm flex items-center space-x-4">
                 <div class="p-3 bg-amber-100 text-amber-600 rounded-lg"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
                 <div>
                   <p class="text-xs text-gray-500 font-medium">Stok Menipis</p>
@@ -366,7 +380,7 @@
             <!-- Tables Overview -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <!-- Recent Transactions -->
-              <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100/60">
                 <h3 class="font-bold text-gray-800 mb-4">Transaksi Terbaru</h3>
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs">
@@ -386,15 +400,15 @@
               </div>
 
               <!-- Low Stock Alert -->
-              <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100/60">
                 <h3 class="font-bold text-gray-800 mb-4">Peringatan Stok Menipis</h3>
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs">
                     <thead class="bg-gray-50 text-gray-500 uppercase">
                       <tr>
                         <th class="p-2">Produk</th>
-                        <th class="p-2">Sisa Stok</th>
-                        <th class="p-2">Min. Stok</th>
+                        <th class="p-2">Sisa Stok (ml)</th>
+                        <th class="p-2">Min. Stok (ml)</th>
                       </tr>
                     </thead>
                     <tbody id="dash-low-stock-table">
@@ -409,22 +423,22 @@
           <!-- VIEW 3: PRODUCTS & STOCK MANAGEMENT -->
           <section id="view-products" class="view-panel hidden space-y-4">
             <div class="flex justify-between items-center">
-              <h2 class="text-xl font-bold text-gray-800">Manajemen Produk & Stok</h2>
+              <h2 class="font-display text-2xl font-bold text-plum-700">Manajemen Produk & Stok</h2>
               <button onclick="app.openProductModal()" class="admin-only bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2">
                 <i class="fa-solid fa-plus"></i> Tambah Produk Baru
               </button>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100/60 overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 border-b">
                   <tr>
                     <th class="p-3">Gambar</th>
                     <th class="p-3">SKU / Barcode</th>
                     <th class="p-3">Nama Produk</th>
-                    <th class="p-3">Harga Beli</th>
-                    <th class="p-3">Harga Jual</th>
-                    <th class="p-3">Stok</th>
+                    <th class="p-3">Harga Beli (/ml)</th>
+                    <th class="p-3">Harga Jual (/ml)</th>
+                    <th class="p-3">Stok (ml)</th>
                     <th class="p-3 text-right">Aksi</th>
                   </tr>
                 </thead>
@@ -437,8 +451,8 @@
 
           <!-- VIEW 4: TRANSACTIONS HISTORY -->
           <section id="view-transactions" class="view-panel hidden space-y-4">
-            <h2 class="text-xl font-bold text-gray-800">Riwayat Penjualan & Cetak Ulang</h2>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+            <h2 class="font-display text-2xl font-bold text-plum-700">Riwayat Penjualan & Cetak Ulang</h2>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100/60 overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 border-b">
                   <tr>
@@ -461,12 +475,12 @@
           <!-- VIEW 5: CUSTOMERS -->
           <section id="view-customers" class="view-panel hidden space-y-4">
             <div class="flex justify-between items-center">
-              <h2 class="text-xl font-bold text-gray-800">Data Pelanggan</h2>
+              <h2 class="font-display text-2xl font-bold text-plum-700">Data Pelanggan</h2>
               <button onclick="app.openCustomerModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2">
                 <i class="fa-solid fa-user-plus"></i> Tambah Pelanggan
               </button>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100/60 overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-500 border-b">
                   <tr>
@@ -486,14 +500,14 @@
           <!-- VIEW 6: REPORTS (PROFIT & LOSS) -->
           <section id="view-reports" class="admin-only view-panel hidden space-y-4">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-              <h2 class="text-xl font-bold text-gray-800">Laporan Keuangan & Laba Rugi</h2>
+              <h2 class="font-display text-2xl font-bold text-plum-700">Laporan Keuangan & Laba Rugi</h2>
               <button onclick="app.exportReportExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg flex items-center gap-2 justify-center">
                 <i class="fa-solid fa-file-excel"></i> Download Excel
               </button>
             </div>
 
             <!-- Date Range Filter -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-3 sm:items-end">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100/60 flex flex-col sm:flex-row gap-3 sm:items-end">
               <div class="flex-1">
                 <label class="block text-xs font-semibold text-gray-600 mb-1">Dari Tanggal</label>
                 <input type="date" id="report-start-date" class="w-full rounded border border-gray-300 p-2 text-xs">
@@ -510,7 +524,7 @@
               </button>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-2xl space-y-4">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-brand-100/60 max-w-2xl space-y-4">
               <div class="flex justify-between border-b pb-2">
                 <span class="text-gray-600">Total Omset Penjualan</span>
                 <span id="report-omset" class="font-bold text-gray-900">Rp 0</span>
@@ -532,11 +546,11 @@
 
           <!-- VIEW 7: SETTINGS & PRINTER CONF -->
           <section id="view-settings" class="admin-only view-panel hidden space-y-6">
-            <h2 class="text-xl font-bold text-gray-800">Pengaturan Toko & Thermal Printer</h2>
+            <h2 class="font-display text-2xl font-bold text-plum-700">Pengaturan Toko & Thermal Printer</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Store Profile Settings -->
-              <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4">
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100/60 space-y-4">
                 <h3 class="font-bold text-gray-800 border-b pb-2">Profil Toko</h3>
                 <div>
                   <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Toko</label>
@@ -561,7 +575,7 @@
               </div>
 
               <!-- Thermal Printer Configuration -->
-              <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4">
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100/60 space-y-4">
                 <h3 class="font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-print"></i> Pengaturan Printer Thermal</h3>
                 <div>
                   <label class="block text-xs font-semibold text-gray-600 mb-1">Ukuran Kertas Default</label>
@@ -589,7 +603,7 @@
             </div>
 
             <!-- Google Sheets Connection Panel -->
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 space-y-4">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-brand-100/60 space-y-4">
               <h3 class="font-bold text-gray-800 border-b pb-2 flex items-center gap-2"><i class="fa-solid fa-table-cells text-green-600"></i> Koneksi Google Sheets</h3>
               <div class="flex items-center gap-2 text-xs">
                 <span id="conn-status-dot-settings" class="h-2.5 w-2.5 rounded-full bg-gray-400"></span>
@@ -624,8 +638,35 @@
       </div>
     </div>
 
+    <!-- MODAL 0: QUICK ADD QUANTITY (ML) -->
+    <div id="qty-modal" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-black bg-opacity-50 p-4">
+      <div class="w-full max-w-sm rounded-xl bg-white p-5 shadow-2xl space-y-4">
+        <div class="flex justify-between items-start border-b pb-3">
+          <div>
+            <h3 id="qty-modal-product-name" class="font-bold text-gray-800 text-sm">Nama Parfum</h3>
+            <p id="qty-modal-product-price" class="text-xs text-gray-400">Rp 0 / ml</p>
+          </div>
+          <button onclick="app.closeModal('qty-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2">Pilih jumlah cepat (ml)</label>
+          <div id="qty-modal-presets" class="grid grid-cols-4 gap-2">
+            <!-- injected via JS -->
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Atau isi manual (ml)</label>
+          <input type="number" id="qty-modal-input" min="1" step="1" value="10" class="w-full rounded-lg border border-gray-300 p-3 text-center text-xl font-bold text-gray-800 focus:outline-none focus:border-brand-500">
+        </div>
+        <p id="qty-modal-stock-note" class="text-[11px] text-gray-400 text-center"></p>
+        <button onclick="app.confirmAddQtyFromModal()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg text-sm">
+          <i class="fa-solid fa-cart-plus"></i> Tambah ke Keranjang
+        </button>
+      </div>
+    </div>
+
     <!-- MODAL 1: PAYMENT PROCESSOR -->
-    <div id="payment-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div id="payment-modal" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-black bg-opacity-50 p-4">
       <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3">
           <h3 class="text-lg font-bold text-gray-800">Proses Pembayaran</h3>
@@ -673,7 +714,7 @@
     </div>
 
     <!-- MODAL 2: RECEIPT PRINT PREVIEW & ACTION -->
-    <div id="receipt-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-60 p-4">
+    <div id="receipt-modal" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-black bg-opacity-60 p-4">
       <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl flex flex-col max-h-[90vh]">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
           <h3 class="font-bold text-gray-800">Preview Struk Pembayaran</h3>
@@ -708,7 +749,7 @@
     </div>
 
     <!-- MODAL 3: PRODUCT EDITOR -->
-    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-black bg-opacity-50 p-4">
       <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
         <h3 id="product-modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Tambah Produk</h3>
         <form onsubmit="app.saveProductForm(event)" class="space-y-3">
@@ -724,16 +765,24 @@
           </div>
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Harga Beli</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Harga Beli (/ml)</label>
               <input type="number" id="prod-cost" required class="w-full rounded border border-gray-300 p-2 text-xs">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Harga Jual</label>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Harga Jual (/ml)</label>
               <input type="number" id="prod-price" required class="w-full rounded border border-gray-300 p-2 text-xs">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Stok Current</label>
-              <input type="number" id="prod-stock" required class="w-full rounded border border-gray-300 p-2 text-xs">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Stok (ml)</label>
+              <input type="number" id="prod-stock" step="any" required class="w-full rounded border border-gray-300 p-2 text-xs">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Tambah stok cepat (ml)</label>
+            <div class="flex gap-2">
+              <button type="button" onclick="app.bumpProdStock(100)" class="flex-1 rounded border border-gray-300 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50">+100</button>
+              <button type="button" onclick="app.bumpProdStock(500)" class="flex-1 rounded border border-gray-300 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50">+500</button>
+              <button type="button" onclick="app.bumpProdStock(1000)" class="flex-1 rounded border border-gray-300 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50">+1000</button>
             </div>
           </div>
           <div class="flex justify-end gap-2 pt-3">
@@ -745,7 +794,7 @@
     </div>
 
     <!-- MODAL 4: HELD TRANSACTIONS -->
-    <div id="held-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div id="held-modal" class="fixed inset-0 z-50 hidden flex items-start sm:items-center justify-center overflow-y-auto py-6 bg-black bg-opacity-50 p-4">
       <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl space-y-4">
         <div class="flex justify-between items-center border-b pb-2">
           <h3 class="font-bold text-gray-800">Transaksi Ditahan (Hold)</h3>
@@ -930,6 +979,14 @@
       skipConnectionSetup() {
         document.getElementById('setup-container').classList.add('hidden');
         document.getElementById('auth-container').classList.remove('hidden');
+      }
+
+      backToConnectionSetup() {
+        document.getElementById('auth-container').classList.add('hidden');
+        document.getElementById('setup-container').classList.remove('hidden');
+        document.getElementById('setup-url').value = localStorage.getItem('sheets_api_url') || '';
+        document.getElementById('setup-key').value = localStorage.getItem('sheets_api_key') || '';
+        document.getElementById('setup-error').classList.add('hidden');
       }
 
       // Re-test & save connection from the Settings page (when already logged in)
@@ -1175,22 +1232,63 @@
         });
 
         grid.innerHTML = filtered.map(p => `
-          <div onclick="app.addToCart('${p.id}')" class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between">
+          <div onclick="app.openQtyModal('${p.id}')" class="bg-white p-3 rounded-xl border border-brand-100 shadow-sm hover:shadow-md hover:border-brand-300 transition cursor-pointer flex flex-col justify-between">
             <div>
               <div class="flex justify-between items-start mb-1">
                 <span class="text-[10px] font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">${p.sku}</span>
-                <span class="text-[10px] font-bold ${p.stock <= p.minStock ? 'text-red-500 bg-red-50' : 'text-green-600 bg-green-50'} px-1.5 py-0.5 rounded">Stok: ${p.stock}</span>
+                <span class="text-[10px] font-bold ${p.stock <= p.minStock ? 'text-red-500 bg-red-50' : 'text-green-600 bg-green-50'} px-1.5 py-0.5 rounded">${p.stock} ml</span>
               </div>
               <h4 class="font-bold text-gray-800 text-sm line-clamp-2">${p.name}</h4>
             </div>
             <div class="mt-3 flex justify-between items-center">
-              <span class="font-extrabold text-brand-600 text-sm">Rp ${p.price.toLocaleString('id-ID')}</span>
+              <span class="font-extrabold text-brand-600 text-sm">Rp ${p.price.toLocaleString('id-ID')}<span class="text-[10px] font-normal text-gray-400">/ml</span></span>
               <button class="h-7 w-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center hover:bg-brand-600 hover:text-white transition">
                 <i class="fa-solid fa-plus text-xs"></i>
               </button>
             </div>
           </div>
         `).join('');
+      }
+
+      // QUICK-ADD QUANTITY (ML) MODAL
+      openQtyModal(productId) {
+        const product = this.getProducts().find(p => p.id === productId);
+        if (!product) return;
+        if (product.stock <= 0) {
+          alert(`Stok ${product.name} habis (0 ml). Isi stok dulu di menu Produk & Stok.`);
+          return;
+        }
+
+        this.pendingQtyProductId = productId;
+        document.getElementById('qty-modal-product-name').innerText = product.name;
+        document.getElementById('qty-modal-product-price').innerText = `Rp ${product.price.toLocaleString('id-ID')} / ml`;
+        document.getElementById('qty-modal-stock-note').innerText = `Sisa stok: ${product.stock} ml`;
+
+        const presets = [5, 10, 15, 20, 25, 50, 100, product.stock].filter((v, i, arr) => v > 0 && arr.indexOf(v) === i).sort((a, b) => a - b);
+        const presetsContainer = document.getElementById('qty-modal-presets');
+        presetsContainer.innerHTML = presets.map(v => `
+          <button type="button" onclick="app.setQtyModalValue(${v})" class="qty-preset-btn rounded-lg border border-gray-300 py-2 text-sm font-bold text-gray-700 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600">${v}${v === product.stock ? '*' : ''}</button>
+        `).join('');
+
+        const input = document.getElementById('qty-modal-input');
+        const existingCartItem = this.cart.find(i => i.product.id === productId);
+        input.value = Math.min(10, product.stock);
+        input.max = product.stock;
+
+        document.getElementById('qty-modal').classList.remove('hidden');
+        input.focus();
+        input.select();
+      }
+
+      setQtyModalValue(v) {
+        document.getElementById('qty-modal-input').value = v;
+      }
+
+      confirmAddQtyFromModal() {
+        const qty = parseFloat(document.getElementById('qty-modal-input').value);
+        if (!qty || qty <= 0) return alert('Masukkan jumlah ml yang valid.');
+        this.addToCart(this.pendingQtyProductId, qty);
+        this.closeModal('qty-modal');
       }
 
       handleBarcodeScan(e) {
@@ -1208,7 +1306,7 @@
       }
 
       // CART ENGINE
-      addToCart(productId) {
+      addToCart(productId, qty = 1) {
         const products = this.getProducts();
         const product = products.find(p => p.id === productId);
         if (!product) return;
@@ -1216,16 +1314,33 @@
         const cartItem = this.cart.find(item => item.product.id === productId);
         const currentQtyInCart = cartItem ? cartItem.qty : 0;
 
-        if (currentQtyInCart + 1 > product.stock) {
-          alert(`Stok tidak mencukupi! Sisa stok ${product.name}: ${product.stock}`);
+        if (currentQtyInCart + qty > product.stock) {
+          alert(`Stok tidak mencukupi! Sisa stok ${product.name}: ${product.stock} ml`);
           return;
         }
 
         if (cartItem) {
-          cartItem.qty += 1;
+          cartItem.qty += qty;
         } else {
-          this.cart.push({ product, qty: 1, discount: 0, note: '' });
+          this.cart.push({ product, qty, discount: 0, note: '' });
         }
+        this.renderCart();
+      }
+
+      setCartQty(productId, newQty) {
+        const item = this.cart.find(i => i.product.id === productId);
+        if (!item) return;
+
+        newQty = parseFloat(newQty);
+        if (!newQty || newQty <= 0) {
+          this.removeFromCart(productId);
+          return;
+        }
+        if (newQty > item.product.stock) {
+          alert(`Stok tidak mencukupi! Sisa stok: ${item.product.stock} ml`);
+          newQty = item.product.stock;
+        }
+        item.qty = newQty;
         this.renderCart();
       }
 
@@ -1240,7 +1355,7 @@
         }
 
         if (newQty > item.product.stock) {
-          alert(`Stok tidak mencukupi! Sisa stok: ${item.product.stock}`);
+          alert(`Stok tidak mencukupi! Sisa stok: ${item.product.stock} ml`);
           return;
         }
 
@@ -1277,11 +1392,12 @@
                 <button onclick="app.removeFromCart('${item.product.id}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fa-solid fa-trash"></i></button>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-gray-500">Rp ${item.product.price.toLocaleString('id-ID')}</span>
-                <div class="flex items-center space-x-2">
-                  <button onclick="app.updateCartQty('${item.product.id}', -1)" class="h-5 w-5 bg-white border border-gray-300 rounded flex items-center justify-center font-bold text-gray-600">-</button>
-                  <span class="font-bold text-gray-800">${item.qty}</span>
-                  <button onclick="app.updateCartQty('${item.product.id}', 1)" class="h-5 w-5 bg-white border border-gray-300 rounded flex items-center justify-center font-bold text-gray-600">+</button>
+                <span class="text-gray-500">Rp ${item.product.price.toLocaleString('id-ID')}/ml</span>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="app.updateCartQty('${item.product.id}', -5)" class="h-5 w-5 bg-white border border-gray-300 rounded flex items-center justify-center font-bold text-gray-600 text-[10px]">-5</button>
+                  <input type="number" value="${item.qty}" min="1" step="1" onchange="app.setCartQty('${item.product.id}', this.value)" class="w-14 text-center font-bold text-gray-800 border border-gray-200 rounded py-0.5 text-xs focus:outline-none focus:border-brand-500">
+                  <span class="text-[10px] text-gray-400">ml</span>
+                  <button onclick="app.updateCartQty('${item.product.id}', 5)" class="h-5 w-5 bg-white border border-gray-300 rounded flex items-center justify-center font-bold text-gray-600 text-[10px]">+5</button>
                 </div>
                 <span class="font-bold text-gray-900">Rp ${(item.product.price * item.qty).toLocaleString('id-ID')}</span>
               </div>
@@ -1552,7 +1668,7 @@
             ${trx.items.map(item => `
               <div style="font-size: 10px; font-weight: bold;">${item.name}</div>
               <div style="display: flex; justify-content: space-between; font-size: 10px;">
-                <span>${item.qty} x ${item.price.toLocaleString('id-ID')}</span>
+                <span>${item.qty}ml x ${item.price.toLocaleString('id-ID')}</span>
                 <span>Rp ${(item.qty * item.price).toLocaleString('id-ID')}</span>
               </div>
             `).join('')}
@@ -1596,7 +1712,7 @@
                 ${trx.items.map(i => `
                   <tr>
                     <td>${i.name}</td>
-                    <td style="text-align:center;">${i.qty}</td>
+                    <td style="text-align:center;">${i.qty}ml</td>
                     <td style="text-align:right;">${i.price.toLocaleString('id-ID')}</td>
                     <td style="text-align:right;">${(i.qty * i.price).toLocaleString('id-ID')}</td>
                   </tr>
@@ -1688,8 +1804,8 @@
         lowStockBody.innerHTML = lowStockProducts.map(p => `
           <tr class="border-b">
             <td class="p-2 font-bold text-gray-800">${p.name}</td>
-            <td class="p-2 text-red-600 font-bold">${p.stock}</td>
-            <td class="p-2 text-gray-400">${p.minStock}</td>
+            <td class="p-2 text-red-600 font-bold">${p.stock} ml</td>
+            <td class="p-2 text-gray-400">${p.minStock} ml</td>
           </tr>
         `).join('');
       }
@@ -1706,7 +1822,7 @@
             <td class="p-3 font-bold text-gray-800">${p.name}</td>
             <td class="p-3 text-gray-500">Rp ${p.costPrice.toLocaleString('id-ID')}</td>
             <td class="p-3 font-bold">Rp ${p.price.toLocaleString('id-ID')}</td>
-            <td class="p-3"><span class="font-bold ${p.stock <= p.minStock ? 'text-red-600' : 'text-gray-800'}">${p.stock}</span></td>
+            <td class="p-3"><span class="font-bold ${p.stock <= p.minStock ? 'text-red-600' : 'text-gray-800'}">${p.stock} ml</span></td>
             <td class="p-3 text-right space-x-2">
               <button onclick="app.openProductModal('${p.id}')" class="admin-only text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen-to-square"></i></button>
               <button onclick="app.deleteProduct('${p.id}')" class="admin-only text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
@@ -1740,6 +1856,11 @@
         document.getElementById('product-modal').classList.remove('hidden');
       }
 
+      bumpProdStock(amount) {
+        const input = document.getElementById('prod-stock');
+        input.value = (parseFloat(input.value) || 0) + amount;
+      }
+
       saveProductForm(e) {
         e.preventDefault();
         const id = document.getElementById('prod-id').value;
@@ -1752,7 +1873,7 @@
           category: document.getElementById('prod-category').value,
           costPrice: parseFloat(document.getElementById('prod-cost').value),
           price: parseFloat(document.getElementById('prod-price').value),
-          stock: parseInt(document.getElementById('prod-stock').value),
+          stock: parseFloat(document.getElementById('prod-stock').value),
           minStock: 5
         };
 
