@@ -265,7 +265,7 @@
           <!-- VIEW 1: POS / KASIR -->
           <section id="view-pos" class="view-panel flex flex-col lg:flex-row lg:h-full gap-6">
             <!-- LEFT COLUMN: SEARCH + CATEGORIES + PRODUCTS GRID -->
-            <div class="flex-1 flex flex-col min-h-0 lg:h-full lg:overflow-hidden">
+            <div class="order-2 lg:order-1 flex-1 flex flex-col min-h-0 lg:h-full lg:overflow-hidden">
               <!-- Search & Barcode Bar -->
               <div class="bg-white dark:bg-noir-800 p-4 rounded-xl shadow-sm mb-4 space-y-3">
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -289,7 +289,7 @@
             </div>
 
             <!-- RIGHT COLUMN: CART & CHECKOUT -->
-            <div class="w-full lg:w-96 bg-white dark:bg-noir-800 rounded-xl shadow-md flex flex-col min-h-0 lg:h-full border border-brand-100/60">
+            <div class="order-1 lg:order-2 w-full lg:w-96 bg-white dark:bg-noir-800 rounded-xl shadow-md flex flex-col min-h-0 lg:h-full border border-brand-100/60">
               <div class="p-4 border-b dark:border-noir-700 border-gray-100 dark:border-noir-700 flex justify-between items-center bg-gray-50 dark:bg-noir-900 rounded-t-xl">
                 <h3 class="font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                   <i class="fa-solid fa-cart-shopping text-brand-600"></i> Keranjang Transaksi
@@ -1683,52 +1683,54 @@
         if (paperSize === '58mm') {
           // 58mm Narrow Format (~32 Characters per line)
           container.innerHTML = `
-            <div style="text-align: center; font-weight: bold; font-size: 13px;">${settings.storeName}</div>
-            <div style="text-align: center; font-size: 10px;">${settings.address}</div>
-            <div style="text-align: center; font-size: 10px;">Telp: ${settings.phone}</div>
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <div style="font-size: 10px;">No : ${trx.id}</div>
-            <div style="font-size: 10px;">Tgl: ${formattedDate}</div>
-            <div style="font-size: 10px;">Kasir: ${trx.cashier}</div>
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+            <div style="text-align: center;"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgMjAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBmaWxsPSIjMDAwMDAwIiBzdHJva2U9Im5vbmUiPgogICAgPCEtLSBEaWFtb25kIGJvdHRsZSBjYXAgLS0+CiAgICA8cG9seWdvbiBwb2ludHM9IjEwMCw4IDg2LDI2IDEwMCw0NCAxMTQsMjYiLz4KICAgIDwhLS0gQm90dGxlIG5lY2sgLS0+CiAgICA8cmVjdCB4PSI5MSIgeT0iNDQiIHdpZHRoPSIxOCIgaGVpZ2h0PSI5Ii8+CiAgICA8IS0tIFNtYWxsIGZsZXVyIGFjY2VudCB1bmRlciBuZWNrIC0tPgogICAgPHBhdGggZD0iTTk2LDU4IFExMDAsNTAgMTA0LDU4IFExMDAsNjQgOTYsNTggWiIvPgogIDwvZz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPCEtLSBBcmNoZWQgZmxvdXJpc2ggdW5kZXIgZGlhbW9uZCAtLT4KICAgIDxwYXRoIGQ9Ik01NSw2MyBRMTAwLDQ0IDE0NSw2MyIgLz4KICA8L2c+Cjwvc3ZnPgo=" style="width: 60px; height: auto; margin-bottom: 2px;" alt="Logo"></div>
+            <div style="text-align: center; font-weight: bold; font-size: 15px;">${settings.storeName}</div>
+            <div style="text-align: center; font-size: 12px;">${settings.address}</div>
+            <div style="text-align: center; font-size: 12px;">Telp: ${settings.phone}</div>
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+            <div style="font-size: 12px;">No : ${trx.id}</div>
+            <div style="font-size: 12px;">Tgl: ${formattedDate}</div>
+            <div style="font-size: 12px;">Kasir: ${trx.cashier}</div>
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
             ${trx.items.map(item => `
-              <div style="font-size: 10px; font-weight: bold;">${item.name}</div>
-              <div style="display: flex; justify-content: space-between; font-size: 10px;">
+              <div style="font-size: 12px; font-weight: bold;">${item.name}</div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px;">
                 <span>${item.qty}ml x ${item.price.toLocaleString('id-ID')}</span>
                 <span>Rp ${(item.qty * item.price).toLocaleString('id-ID')}</span>
               </div>
             `).join('')}
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
               <span>Subtotal</span><span>Rp ${trx.subtotal.toLocaleString('id-ID')}</span>
             </div>
-            ${trx.discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 10px;"><span>Diskon</span><span>-Rp ${trx.discount.toLocaleString('id-ID')}</span></div>` : ''}
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; margin-top: 2px;">
+            ${trx.discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px;"><span>Diskon</span><span>-Rp ${trx.discount.toLocaleString('id-ID')}</span></div>` : ''}
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; margin-top: 3px;">
               <span>TOTAL</span><span>Rp ${trx.grandTotal.toLocaleString('id-ID')}</span>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 4px 0;"></div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
+            <div style="border-top: 1px dashed #000; margin: 5px 0;"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
               <span>Bayar (${trx.paymentMethod})</span><span>Rp ${trx.cashPaid.toLocaleString('id-ID')}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
               <span>Kembali</span><span>Rp ${trx.change.toLocaleString('id-ID')}</span>
             </div>
-            <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
-            <div style="text-align: center; font-size: 10px; white-space: pre-line;">${settings.footer}</div>
+            <div style="border-top: 1px dashed #000; margin: 7px 0;"></div>
+            <div style="text-align: center; font-size: 12px; white-space: pre-line;">${settings.footer}</div>
           `;
         } else {
           // 80mm Wide Format (~48 Characters per line)
           container.innerHTML = `
-            <div style="text-align: center; font-weight: bold; font-size: 16px;">${settings.storeName}</div>
-            <div style="text-align: center; font-size: 11px;">${settings.address} | Telp: ${settings.phone}</div>
-            <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px;">
+            <div style="text-align: center;"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQwIiBoZWlnaHQ9IjcwIiB2aWV3Qm94PSIwIDAgMjAwIDEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZyBmaWxsPSIjMDAwMDAwIiBzdHJva2U9Im5vbmUiPgogICAgPCEtLSBEaWFtb25kIGJvdHRsZSBjYXAgLS0+CiAgICA8cG9seWdvbiBwb2ludHM9IjEwMCw4IDg2LDI2IDEwMCw0NCAxMTQsMjYiLz4KICAgIDwhLS0gQm90dGxlIG5lY2sgLS0+CiAgICA8cmVjdCB4PSI5MSIgeT0iNDQiIHdpZHRoPSIxOCIgaGVpZ2h0PSI5Ii8+CiAgICA8IS0tIFNtYWxsIGZsZXVyIGFjY2VudCB1bmRlciBuZWNrIC0tPgogICAgPHBhdGggZD0iTTk2LDU4IFExMDAsNTAgMTA0LDU4IFExMDAsNjQgOTYsNTggWiIvPgogIDwvZz4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPCEtLSBBcmNoZWQgZmxvdXJpc2ggdW5kZXIgZGlhbW9uZCAtLT4KICAgIDxwYXRoIGQ9Ik01NSw2MyBRMTAwLDQ0IDE0NSw2MyIgLz4KICA8L2c+Cjwvc3ZnPgo=" style="width: 80px; height: auto; margin-bottom: 3px;" alt="Logo"></div>
+            <div style="text-align: center; font-weight: bold; font-size: 18px;">${settings.storeName}</div>
+            <div style="text-align: center; font-size: 13px;">${settings.address} | Telp: ${settings.phone}</div>
+            <div style="border-top: 1px solid #000; margin: 7px 0;"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
               <span>No. Transaksi : ${trx.id}</span>
               <span>Kasir : ${trx.cashier}</span>
             </div>
-            <div style="font-size: 11px;">Tanggal : ${formattedDate}</div>
-            <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
-            <table style="width: 100%; text-align: left; font-size: 11px;">
+            <div style="font-size: 13px;">Tanggal : ${formattedDate}</div>
+            <div style="border-top: 1px solid #000; margin: 7px 0;"></div>
+            <table style="width: 100%; text-align: left; font-size: 13px;">
               <thead>
                 <tr style="border-bottom: 1px text-gray-400;">
                   <th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Harga</th><th style="text-align:right;">Total</th>
@@ -1745,15 +1747,15 @@
                 `).join('')}
               </tbody>
             </table>
-            <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
-            <div style="display: flex; justify-content: flex-end; font-size: 11px;"><span style="width: 120px;">Subtotal:</span><span>Rp ${trx.subtotal.toLocaleString('id-ID')}</span></div>
-            ${trx.discount > 0 ? `<div style="display: flex; justify-content: flex-end; font-size: 11px;"><span style="width: 120px;">Diskon:</span><span>-Rp ${trx.discount.toLocaleString('id-ID')}</span></div>` : ''}
-            <div style="display: flex; justify-content: flex-end; font-weight: bold; font-size: 13px; margin-top: 2px;"><span style="width: 120px;">GRAND TOTAL:</span><span>Rp ${trx.grandTotal.toLocaleString('id-ID')}</span></div>
-            <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
-            <div style="display: flex; justify-content: flex-end; font-size: 11px;"><span style="width: 120px;">Bayar (${trx.paymentMethod}):</span><span>Rp ${trx.cashPaid.toLocaleString('id-ID')}</span></div>
-            <div style="display: flex; justify-content: flex-end; font-size: 11px;"><span style="width: 120px;">Kembalian:</span><span>Rp ${trx.change.toLocaleString('id-ID')}</span></div>
-            <div style="border-top: 1px solid #000; margin: 8px 0;"></div>
-            <div style="text-align: center; font-size: 11px; white-space: pre-line;">${settings.footer}</div>
+            <div style="border-top: 1px solid #000; margin: 7px 0;"></div>
+            <div style="display: flex; justify-content: flex-end; font-size: 13px;"><span style="width: 130px;">Subtotal:</span><span>Rp ${trx.subtotal.toLocaleString('id-ID')}</span></div>
+            ${trx.discount > 0 ? `<div style="display: flex; justify-content: flex-end; font-size: 13px;"><span style="width: 130px;">Diskon:</span><span>-Rp ${trx.discount.toLocaleString('id-ID')}</span></div>` : ''}
+            <div style="display: flex; justify-content: flex-end; font-weight: bold; font-size: 15px; margin-top: 3px;"><span style="width: 130px;">GRAND TOTAL:</span><span>Rp ${trx.grandTotal.toLocaleString('id-ID')}</span></div>
+            <div style="border-top: 1px solid #000; margin: 7px 0;"></div>
+            <div style="display: flex; justify-content: flex-end; font-size: 13px;"><span style="width: 130px;">Bayar (${trx.paymentMethod}):</span><span>Rp ${trx.cashPaid.toLocaleString('id-ID')}</span></div>
+            <div style="display: flex; justify-content: flex-end; font-size: 13px;"><span style="width: 130px;">Kembalian:</span><span>Rp ${trx.change.toLocaleString('id-ID')}</span></div>
+            <div style="border-top: 1px solid #000; margin: 9px 0;"></div>
+            <div style="text-align: center; font-size: 13px; white-space: pre-line;">${settings.footer}</div>
           `;
         }
       }
