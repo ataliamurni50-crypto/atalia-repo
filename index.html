@@ -313,6 +313,29 @@
                 <!-- Cart Items Injected JS -->
               </div>
 
+              <!-- Manual / Non-Catalog Item Entry -->
+              <div class="border-t dark:border-noir-700 border-gray-100 px-4 py-2">
+                <button type="button" onclick="app.toggleManualItemForm()" id="manual-item-toggle-btn" class="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-700 dark:text-brand-500 py-1.5 hover:bg-brand-50 dark:hover:bg-noir-800 rounded-lg">
+                  <i class="fa-solid fa-plus"></i> Tambah Barang Lain (Non-Parfum)
+                </button>
+                <div id="manual-item-form" class="hidden mt-2 space-y-2 bg-gray-50 dark:bg-noir-900 rounded-lg p-3">
+                  <input type="text" id="manual-item-name" placeholder="Nama barang (mis. Botol Kosong 30ml)" class="w-full rounded border border-gray-300 dark:border-noir-600 p-2 text-xs">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[10px] text-gray-500 dark:text-gray-400 mb-0.5">Qty</label>
+                      <input type="number" id="manual-item-qty" placeholder="1" min="1" step="any" value="1" class="w-full rounded border border-gray-300 dark:border-noir-600 p-2 text-xs">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] text-gray-500 dark:text-gray-400 mb-0.5">Harga Satuan</label>
+                      <input type="number" id="manual-item-price" placeholder="0" min="0" class="w-full rounded border border-gray-300 dark:border-noir-600 p-2 text-xs">
+                    </div>
+                  </div>
+                  <button type="button" onclick="app.addManualItemToCart()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 rounded-lg text-xs">
+                    <i class="fa-solid fa-cart-plus"></i> Tambahkan ke Keranjang
+                  </button>
+                </div>
+              </div>
+
               <!-- Cart Calculation Summary -->
               <div class="p-4 border-t dark:border-noir-700 border-gray-100 dark:border-noir-700 bg-gray-50 dark:bg-noir-900 space-y-2 text-sm">
                 <div class="flex justify-between text-gray-600 dark:text-gray-400 dark:text-gray-500">
@@ -1370,6 +1393,45 @@
         this.renderCart();
       }
 
+      // MANUAL / NON-CATALOG ITEM (e.g. selling something outside the parfum catalog)
+      toggleManualItemForm() {
+        const form = document.getElementById('manual-item-form');
+        form.classList.toggle('hidden');
+        if (!form.classList.contains('hidden')) {
+          document.getElementById('manual-item-name').focus();
+        }
+      }
+
+      addManualItemToCart() {
+        const name = document.getElementById('manual-item-name').value.trim();
+        const qty = parseFloat(document.getElementById('manual-item-qty').value);
+        const price = parseFloat(document.getElementById('manual-item-price').value);
+
+        if (!name) return alert('Isi nama barang dulu.');
+        if (!qty || qty <= 0) return alert('Isi qty yang valid.');
+        if (isNaN(price) || price < 0) return alert('Isi harga satuan yang valid.');
+
+        const manualProduct = {
+          id: 'manual_' + Date.now(),
+          sku: 'MANUAL',
+          name,
+          category: 'Lainnya',
+          costPrice: 0,
+          price,
+          stock: Infinity,
+          minStock: 0
+        };
+
+        this.cart.push({ product: manualProduct, qty, discount: 0, note: '', isManual: true });
+        this.renderCart();
+
+        // Reset & collapse the form
+        document.getElementById('manual-item-name').value = '';
+        document.getElementById('manual-item-qty').value = '1';
+        document.getElementById('manual-item-price').value = '';
+        document.getElementById('manual-item-form').classList.add('hidden');
+      }
+
       setCartQty(productId, newQty) {
         const item = this.cart.find(i => i.product.id === productId);
         if (!item) return;
@@ -1428,24 +1490,32 @@
             </div>
           `;
         } else {
-          container.innerHTML = this.cart.map(item => `
+          container.innerHTML = this.cart.map(item => {
+            const unit = item.isManual ? 'pcs' : 'ml';
+            const step = item.isManual ? 1 : 5;
+            const priceLabel = item.isManual ? `Rp ${item.product.price.toLocaleString('id-ID')}` : `Rp ${item.product.price.toLocaleString('id-ID')}/ml`;
+            return `
             <div class="bg-gray-50 dark:bg-noir-900 p-2.5 rounded-lg border border-gray-200 dark:border-noir-700 flex flex-col gap-1">
               <div class="flex justify-between items-start">
-                <span class="font-bold text-xs text-gray-800 dark:text-gray-200">${item.product.name}</span>
+                <span class="font-bold text-xs text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                  ${item.product.name}
+                  ${item.isManual ? '<span class="text-[9px] font-semibold bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded">MANUAL</span>' : ''}
+                </span>
                 <button onclick="app.removeFromCart('${item.product.id}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fa-solid fa-trash"></i></button>
               </div>
               <div class="flex justify-between items-center text-xs">
-                <span class="text-gray-500 dark:text-gray-400 dark:text-gray-500">Rp ${item.product.price.toLocaleString('id-ID')}/ml</span>
+                <span class="text-gray-500 dark:text-gray-400">${priceLabel}</span>
                 <div class="flex items-center space-x-1.5">
-                  <button onclick="app.updateCartQty('${item.product.id}', -5)" class="h-5 w-5 bg-white dark:bg-noir-800 border border-gray-300 dark:border-noir-600 rounded flex items-center justify-center font-bold text-gray-600 dark:text-gray-400 dark:text-gray-500 text-[10px]">-5</button>
+                  <button onclick="app.updateCartQty('${item.product.id}', -${step})" class="h-5 w-5 bg-white dark:bg-noir-800 border border-gray-300 dark:border-noir-600 rounded flex items-center justify-center font-bold text-gray-600 dark:text-gray-400 text-[10px]">-${step}</button>
                   <input type="number" value="${item.qty}" min="1" step="1" onchange="app.setCartQty('${item.product.id}', this.value)" class="w-14 text-center font-bold text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-noir-700 rounded py-0.5 text-xs focus:outline-none focus:border-brand-500">
-                  <span class="text-[10px] text-gray-400 dark:text-gray-500">ml</span>
-                  <button onclick="app.updateCartQty('${item.product.id}', 5)" class="h-5 w-5 bg-white dark:bg-noir-800 border border-gray-300 dark:border-noir-600 rounded flex items-center justify-center font-bold text-gray-600 dark:text-gray-400 dark:text-gray-500 text-[10px]">+5</button>
+                  <span class="text-[10px] text-gray-400 dark:text-gray-500">${unit}</span>
+                  <button onclick="app.updateCartQty('${item.product.id}', ${step})" class="h-5 w-5 bg-white dark:bg-noir-800 border border-gray-300 dark:border-noir-600 rounded flex items-center justify-center font-bold text-gray-600 dark:text-gray-400 text-[10px]">+${step}</button>
                 </div>
                 <span class="font-bold text-gray-900 dark:text-gray-100">Rp ${(item.product.price * item.qty).toLocaleString('id-ID')}</span>
               </div>
             </div>
-          `).join('');
+          `;
+          }).join('');
         }
         this.updateCartTotals();
       }
@@ -1626,7 +1696,8 @@
             name: i.product.name,
             costPrice: i.product.costPrice,
             price: i.product.price,
-            qty: i.qty
+            qty: i.qty,
+            isManual: !!i.isManual
           })),
           subtotal,
           discount,
@@ -1846,7 +1917,7 @@
             ${trx.items.map(item => `
               <div style="font-size: 12px; font-weight: bold;">${item.name}</div>
               <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                <span>${item.qty}ml x ${item.price.toLocaleString('id-ID')}</span>
+                <span>${item.qty}${item.isManual ? '' : 'ml'} x ${item.price.toLocaleString('id-ID')}</span>
                 <span>Rp ${(item.qty * item.price).toLocaleString('id-ID')}</span>
               </div>
             `).join('')}
@@ -1891,7 +1962,7 @@
                 ${trx.items.map(i => `
                   <tr>
                     <td>${i.name}</td>
-                    <td style="text-align:center;">${i.qty}ml</td>
+                    <td style="text-align:center;">${i.qty}${i.isManual ? '' : 'ml'}</td>
                     <td style="text-align:right;">${i.price.toLocaleString('id-ID')}</td>
                     <td style="text-align:right;">${(i.qty * i.price).toLocaleString('id-ID')}</td>
                   </tr>
